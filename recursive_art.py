@@ -15,19 +15,19 @@ def build_random_function(min_depth, max_depth):
                  (see assignment writeup for details on the representation of
                  these functions)
     """
-    if(min_depth < 1):
-        if(random.randint(0, 1) == 1):
-            if(random.randint(0, 1) == 1):
+    if(min_depth < 1):#base case, once min depth is reached there is a chance it returns x or y to end recursion
+        if(random.randint(0, 1) == 1):#decides whether to end
+            if(random.randint(0, 1) == 1):#chooses what to return
                 return ['x']
             return ['y']
-    if(max_depth == 0):
+    if(max_depth == 0):#base case, can't go deeper than max
         if(random.randint(0, 1) == 1):
             return ['x']
         return ['y']
-    choice = random.randint(0, len(func) - 1)
+    choice = random.randint(0, len(func) - 1)#random choice from list for function
     if(choice > 3):
-        return [func[choice], build_random_function(min_depth - 1, max_depth - 1)]
-    return [func[choice], build_random_function(min_depth - 1, max_depth - 1), build_random_function(min_depth - 1, max_depth - 1)]
+        return [func[choice], build_random_function(min_depth - 1, max_depth - 1)]#functions that only take one argument
+    return [func[choice], build_random_function(min_depth - 1, max_depth - 1), build_random_function(min_depth - 1, max_depth - 1)]#functions for two arguments
 
 
 
@@ -45,16 +45,16 @@ def evaluate_random_function(f, x, y):
         >>> evaluate_random_function(["y"],0.1,0.02)
         0.02
     """
-    if(len(f) == 1):
+    if(len(f) == 1):#base case
         return {'x' : x, 'y' : y}[f[0]]
-    #apparently dictionaries check every set included within them
+    #apparently dictionaries check every set included within them, wasting computational time
     '''if(len(f) == 2):
         return {'cos' : math.cos(math.pi * evaluate_random_function(f[1], x, y)), 'sin' : math.sin(math.pi * evaluate_random_function(f[1], x, y))}[f[0]]
     return {'prod' : evaluate_random_function(f[1], x, y) * evaluate_random_function(f[2], x, y),
             'avg' : .5*(evaluate_random_function(f[1], x, y) + evaluate_random_function(f[2], x, y)),
             'x' : evaluate_random_function(f[1], x, y),
             'y' : evaluate_random_function(f[2], x, y)}[f[0]]'''
-    if(f[0] == 'cos'):
+    if(f[0] == 'cos'):#ugly but it works, checks current function then recurs with operation
         return math.cos(math.pi * evaluate_random_function(f[1], x, y))
     if(f[0] == 'sin'):
         return math.sin(math.pi * evaluate_random_function(f[1], x, y))
@@ -96,9 +96,9 @@ def remap_interval(val,
         >>> remap_interval(5, 4, 6, 1, 2)
         1.5
     """
-    baseInEnd = input_interval_end - input_interval_start
-    baseOutEnd = output_interval_end - output_interval_start
-    return baseOutEnd/baseInEnd * (val - input_interval_start) + output_interval_start
+    baseInEnd = input_interval_end - input_interval_start#set input range to start from zero
+    baseOutEnd = output_interval_end - output_interval_start#set output range to start from zero
+    return baseOutEnd/baseInEnd * (val - input_interval_start) + output_interval_start#val translated from input range to output range, then output start added
 
 
 
