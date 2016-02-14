@@ -2,7 +2,7 @@
 
 import random, math, sys
 from PIL import Image
-func = ['prod', 'avg', 'x', 'y', 'cos', 'sin']
+func = ['prod', 'avg', 'x', 'y', 'diff', 'cos', 'sin', 'sqrt(abs)']
 
 def build_random_function(min_depth, max_depth):
     """ Builds a random function of depth at least min_depth and depth
@@ -25,7 +25,7 @@ def build_random_function(min_depth, max_depth):
             return ['x']
         return ['y']
     choice = random.randint(0, len(func) - 1)#random choice from list for function
-    if(choice > 3):
+    if(choice > 4):
         return [func[choice], build_random_function(min_depth - 1, max_depth - 1)]#functions that only take one argument
     return [func[choice], build_random_function(min_depth - 1, max_depth - 1), build_random_function(min_depth - 1, max_depth - 1)]#functions for two arguments
 
@@ -54,7 +54,7 @@ def evaluate_random_function(f, x, y):
             'avg' : .5*(evaluate_random_function(f[1], x, y) + evaluate_random_function(f[2], x, y)),
             'x' : evaluate_random_function(f[1], x, y),
             'y' : evaluate_random_function(f[2], x, y)}[f[0]]'''
-    if(f[0] == 'cos'):#ugly but it works, checks current function then recurs with operation
+    if(f[0] == 'cos'):#checks current function then recurs with operation
         return math.cos(math.pi * evaluate_random_function(f[1], x, y))
     if(f[0] == 'sin'):
         return math.sin(math.pi * evaluate_random_function(f[1], x, y))
@@ -66,6 +66,10 @@ def evaluate_random_function(f, x, y):
         return evaluate_random_function(f[1], x, y)
     if(f[0] == 'y'):
         return evaluate_random_function(f[2], x, y)
+    if(f[0] == 'sqrt(abs)'):
+        return math.sqrt(abs(evaluate_random_function(f[1], x, y)))
+    if(f[0] == 'diff'):
+        return (evaluate_random_function(f[1], x, y) - evaluate_random_function(f[2], x, y)) / 2
 
 
 
