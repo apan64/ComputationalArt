@@ -1,6 +1,6 @@
-""" TODO: Put your header comment here """
+""" This Python package provides an implementation of generating 'art' via recursion """
 
-import random, math, sys
+import random, math, sys #sys was for try/catch
 from PIL import Image
 func = ['prod', 'avg', 'x', 'y', 'diff', 'cos', 'sin', 'sqrt(abs)']
 
@@ -47,6 +47,7 @@ def evaluate_random_function(f, x, y):
     """
     if(len(f) == 1):#base case
         return {'x' : x, 'y' : y}[f[0]]
+    #closest replacement for switch statements is dictionary
     #apparently dictionaries check every set included within them, wasting computational time
     '''if(len(f) == 2):
         return {'cos' : math.cos(math.pi * evaluate_random_function(f[1], x, y)), 'sin' : math.sin(math.pi * evaluate_random_function(f[1], x, y))}[f[0]]
