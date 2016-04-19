@@ -1,6 +1,6 @@
 """ This Python package provides an implementation of generating 'art' via recursion """
 
-import random, math, sys #sys was for try/catch
+import random, math, sys, cv2, numpy, pygame
 from PIL import Image
 func = ['prod', 'avg', 'x', 'y', 'diff', 'cos', 'sin', 'sqrt(abs)']
 
@@ -47,14 +47,6 @@ def evaluate_random_function(f, x, y):
     """
     if(len(f) == 1):#base case
         return {'x' : x, 'y' : y}[f[0]]
-    #closest replacement for switch statements is dictionary
-    #apparently dictionaries check every set included within them, wasting computational time
-    '''if(len(f) == 2):
-        return {'cos' : math.cos(math.pi * evaluate_random_function(f[1], x, y)), 'sin' : math.sin(math.pi * evaluate_random_function(f[1], x, y))}[f[0]]
-    return {'prod' : evaluate_random_function(f[1], x, y) * evaluate_random_function(f[2], x, y),
-            'avg' : .5*(evaluate_random_function(f[1], x, y) + evaluate_random_function(f[2], x, y)),
-            'x' : evaluate_random_function(f[1], x, y),
-            'y' : evaluate_random_function(f[2], x, y)}[f[0]]'''
     if(f[0] == 'cos'):#checks current function then recurs with operation
         return math.cos(math.pi * evaluate_random_function(f[1], x, y))
     if(f[0] == 'sin'):
@@ -74,7 +66,7 @@ def evaluate_random_function(f, x, y):
 
 
 
-def remap_interval(val,
+def remap_interval(val, #changed to operate on python2 (I was using python3 so integer truncation wasn't an issue)
                    input_interval_start,
                    input_interval_end,
                    output_interval_start,
@@ -101,9 +93,9 @@ def remap_interval(val,
         >>> remap_interval(5, 4, 6, 1, 2)
         1.5
     """
-    baseInEnd = input_interval_end - input_interval_start#set input range to start from zero
-    baseOutEnd = output_interval_end - output_interval_start#set output range to start from zero
-    return baseOutEnd/baseInEnd * (val - input_interval_start) + output_interval_start#val translated from input range to output range, then output start added
+    baseInEnd = float(input_interval_end - input_interval_start) #set input range to start from zero
+    baseOutEnd = float(output_interval_end - output_interval_start) #set output range to start from zero
+    return baseOutEnd/baseInEnd * (val - input_interval_start) + output_interval_start #val translated from input range to output range, then output start added
 
 
 
@@ -171,19 +163,44 @@ def generate_art(filename, x_size=350, y_size=350):
                     color_map(evaluate_random_function(green_function, x, y)),
                     color_map(evaluate_random_function(blue_function, x, y))
                     )
-
     im.save(filename)
+    editPicture(pixels, x_size, y_size)
 
+def editPicture(p, x_size, y_size): #edits a picture after having the pixels passed in as an argument, position of distortion based on face recognition
+    editedFile = 'edited_art.png'
+    im = Image.new("RGB", (x_size, y_size))
+    pixels = im.load()
+    for i in range(x_size):
+        for j in range(y_size):
+            pixels[i, j] = p[i, j]
+    kernel = numpy.ones((21,21),'uint8')
+    cap = cv2.VideoCapture(0)
+    face_cascade = cv2.CascadeClassifier('/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml')
+    screen = pygame.display.set_mode((x_size, y_size))
+    while(True):
+        ret, frame = cap.read()
+        faces = face_cascade.detectMultiScale(frame, scaleFactor=1.2, minSize=(20,20))
+        for (x,y,w,h) in faces:
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255))
+            for i in range(int(w/3), int(w*2/3)):
+                for j in range(int(h/3), int(h*2/3)):
+                    try:
+                        # pixels[int(x+i - w/3), int(y+j - h/3)] = (int(pixels[int(x+i), int(y+j)][0]*4/5), int(pixels[int(x+i), int(y+j)][1]*4/5), int(pixels[int(x+i), int(y+j)][2]*4/5))
+                        xRand = random.randint(0, x_size - 1)
+                        yRand = random.randint(0, y_size - 1)
+                        pixels[int(x+i - w/3), int(y+j - h/3)] = (int(pixels[xRand, yRand][0]*random.randint(1, 5)/random.randint(1, 5)), int(pixels[xRand, yRand][1]*random.randint(1, 5)/random.randint(1, 5)), int(pixels[xRand, yRand][2]*random.randint(1, 5)/random.randint(1, 5))) #randomly distorts image
+                    except IndexError: #for when the face is outside of picture range, continues on with rest of program
+                        pass
+        im.save(editedFile)
+        pic = pygame.image.load(editedFile)
+        screen.blit(pic,(0,0))
+        pygame.display.update()
+        cv2.imshow('frame',frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            pygame.quit()
+            sys.exit()
 
 if __name__ == '__main__':
-    '''import doctest
-    doctest.testmod()'''
-
-    # Create some computational art!
-    # TODO: Un-comment the generate_art function call after you
-    #       implement remap_interval and evaluate_random_function
+    # import doctest
+    # doctest.testmod()
     generate_art("myart.png")
-
-    # Test that PIL is installed correctly
-    # TODO: Comment or remove this function call after testing PIL install
-    #test_image("noise.png")
