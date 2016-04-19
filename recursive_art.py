@@ -185,7 +185,6 @@ def editPicture(p, x_size, y_size): #edits a picture after having the pixels pas
             for i in range(int(w/3), int(w*2/3)):
                 for j in range(int(h/3), int(h*2/3)):
                     try:
-                        # pixels[int(x+i - w/3), int(y+j - h/3)] = (int(pixels[int(x+i), int(y+j)][0]*4/5), int(pixels[int(x+i), int(y+j)][1]*4/5), int(pixels[int(x+i), int(y+j)][2]*4/5))
                         xRand = random.randint(0, x_size - 1)
                         yRand = random.randint(0, y_size - 1)
                         pixels[int(x+i - w/3), int(y+j - h/3)] = (int(pixels[xRand, yRand][0]*random.randint(1, 5)/random.randint(1, 5)), int(pixels[xRand, yRand][1]*random.randint(1, 5)/random.randint(1, 5)), int(pixels[xRand, yRand][2]*random.randint(1, 5)/random.randint(1, 5))) #randomly distorts image
